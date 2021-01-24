@@ -1,0 +1,8 @@
+#+STARTUP: hidestars
+#+OPTIONS: H:8
+#+HTML_HEAD: <META HTTP-EQUIV="pragma" CONTENT="no-cache">
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
+#+HTML_HEAD: <link rel="preconnect" href="https://fonts.gstatic.com">
+#+HTML_HEAD: <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+#+HTML_HEAD: <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300&display=swap" rel="stylesheet">
+#+TITLE: Ecto

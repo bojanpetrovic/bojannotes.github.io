@@ -1,0 +1,101 @@
+#+TITLE: Ecto Drill
+* Design patterns :drill:
+What are 2 main design patterns when it comes to frameworks that communicate with database.
+
+What is the main difference between them?
+** Answer
+- Active Record Pattern
+- Repository Pattern
+
+*Active Record Pattern* is doing database communication "behind the scene". For
+e.g. if you type ~user.emails~, emails will be fetched from database if they are
+not already loaded.
+
+*Repository Pattern* demands that you be explicit about what you want to do. In
+Ecto's example, no talking to database is done before you explicitly invoke
+function on ~Repo~ module.
+
+* View generated SQL :drill:
+How do you view generated SQL?
+
+** Answer
+#+begin_src elixir
+Repo.to_sql(:all, query)
+#+end_src
+
+* Query binding :drill:
+What is *query binding*?
+
+** Answer
+It allows you to refer to a table throught query, like
+#+begin_src elixir
+q = from a in "artists",
+    where: a.name == "Bill Evans",
+    select: [:id, :name]
+#+end_src
+
+* Named bindings :drill:
+How, and why, do we use *named bindings*?
+
+** Answer
+If we have query like this:
+#+begin_src elixir
+albums_by_miles = from a in "albums",
+  join: ar in "artists",
+  on: a.artist_id == ar.id,
+  where: ar.name == "Miles Davis"
+#+end_src
+
+and if we need to fetch artists name, we need to do it like this:
+#+begin_src elixir
+album_query =
+  from [a,ar] in albums_by_miles,
+  select: a.title
+#+end_src
+
+So, to avoid referencing albums (throught a), we use named query bindings:
+#+begin_src elixir
+albums_by_miles =
+  from a in "albums", as: :albums,
+  join: ar in "artists", as: :artists,
+  on: a.artist_id == ar.id,
+  where: ar.name == "Miles Davis"
+#+end_src
+
+* or_where :drill:
+How do you use ~or_where~?
+
+** Answer
+#+begin_src elixir
+albums_by_miles = from a in "albums",
+  join: ar in "artists",
+  on: a.artist_id == ar.id,
+  where: ar.name == "Miles Davis"
+
+q = from [a,ar] in albums_by_miles,
+  or_where: ar.name == "Bobby Hutcherson"
+#+end_src
+
+* Custom function to Ecto :drill:
+How do you add custom function to Ecto (like ~lower~)?
+
+** Answer
+By adding your own macro, like:
+#+begin_src elixir
+defmacro lower(arg) do
+  quote do: fragment("lower(?)", unquote(arg))
+end
+#+end_src
+
+* Combining queries :drill:
+How do you combine results for different queries?
+
+** Answer
+By using ~union~, or ~union_all~ if you don't mind duplicate entries:
+#+begin_src elixir
+tracks_query = from t in "tracks", select: t.title
+union_query = from a in "albums",
+  select: a.title,
+  union: ^tracks_query
+Repo.all(union_query)
+#+end_src
